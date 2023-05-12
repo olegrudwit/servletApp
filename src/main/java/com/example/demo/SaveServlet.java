@@ -8,17 +8,34 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+/**
+ * @author Oleg Rudoi
+ * @version 2.0 11 May 2023
+ */
 @WebServlet("/saveServlet")
 public class SaveServlet extends HttpServlet {
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
         response.setContentType("text/plain");
         response.setCharacterEncoding("UTF-8");
 
         PrintWriter out = response.getWriter();
 
+        Employee employee = getEmployee(request);
+
+        int status = EmployeeRepository.save(employee);
+
+        String answer = status > 0
+                ? "Record saved successfully!"
+                : "Sorry! unable to save record";
+        out.println(answer);
+        out.close();
+    }
+
+    private static Employee getEmployee(HttpServletRequest request) {
         String name = request.getParameter("name");
         String email = request.getParameter("email");
         String country = request.getParameter("country");
@@ -28,18 +45,6 @@ public class SaveServlet extends HttpServlet {
         employee.setName(name);
         employee.setEmail(email);
         employee.setCountry(country);
-
-        //out.println(employee.toString());
-        //out.println(EmployeeRepository.getConnection());
-
-        int status = EmployeeRepository.save(employee);
-        //out.println(status);
-
-        if (status > 0) {
-            out.print("Record saved successfully!");
-        } else {
-            out.println("Sorry! unable to save record");
-        }
-        out.close();
+        return employee;
     }
 }
